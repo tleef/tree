@@ -16,21 +16,7 @@ const defaultTitle = '---';
 class TreeNode extends React.Component {
   constructor(props) {
     super(props);
-    [
-      'onExpand',
-      'onCheck',
-      'onContextMenu',
-      'onMouseEnter',
-      'onMouseLeave',
-      'onDragStart',
-      'onDragEnter',
-      'onDragOver',
-      'onDragLeave',
-      'onDrop',
-      'onDragEnd',
-    ].forEach((m) => {
-      this[m] = this[m].bind(this);
-    });
+
     this.state = {
       dataLoading: false,
       dragNodeHighlight: false,
@@ -50,27 +36,64 @@ class TreeNode extends React.Component {
   //   return true;
   // }
 
-  onCheck() {
+  onCheck = () => {
     this.props.root.onCheck(this);
-  }
+  };
+
+  onExpand = () => {
+    const callbackPromise = this.props.root.onExpand(this);
+    if (callbackPromise && typeof callbackPromise === 'object') {
+      const setLoading = (dataLoading) => {
+        this.setState({ dataLoading });
+      };
+      setLoading(true);
+      callbackPromise.then(() => {
+        setLoading(false);
+      }, () => {
+        setLoading(false);
+      });
+    }
+  };
 
   onSelect() {
     this.props.root.onSelect(this);
   }
 
-  onMouseEnter(e) {
-    e.preventDefault();
-    this.props.root.onMouseEnter(e, this);
-  }
-
-  onMouseLeave(e) {
-    e.preventDefault();
-    this.props.root.onMouseLeave(e, this);
-  }
-
   onContextMenu(e) {
     e.preventDefault();
     this.props.root.onContextMenu(e, this);
+  }
+
+  onDoubleClick(e) {
+    e.preventDefault();
+    this.props.root.onDoubleClick(e, this);
+  }
+
+  onDragEnd(e) {
+    e.stopPropagation();
+    this.setState({
+      dragNodeHighlight: false,
+    });
+    this.props.root.onDragEnd(e, this);
+  }
+
+  onDragEnter(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.props.root.onDragEnter(e, this);
+  }
+
+  onDragLeave(e) {
+    e.stopPropagation();
+    this.props.root.onDragLeave(e, this);
+  }
+
+  onDragOver(e) {
+    // todo disabled
+    e.preventDefault();
+    e.stopPropagation();
+    this.props.root.onDragOver(e, this);
+    return false;
   }
 
   onDragStart(e) {
@@ -90,25 +113,6 @@ class TreeNode extends React.Component {
     }
   }
 
-  onDragEnter(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    this.props.root.onDragEnter(e, this);
-  }
-
-  onDragOver(e) {
-    // todo disabled
-    e.preventDefault();
-    e.stopPropagation();
-    this.props.root.onDragOver(e, this);
-    return false;
-  }
-
-  onDragLeave(e) {
-    e.stopPropagation();
-    this.props.root.onDragLeave(e, this);
-  }
-
   onDrop(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -118,27 +122,14 @@ class TreeNode extends React.Component {
     this.props.root.onDrop(e, this);
   }
 
-  onDragEnd(e) {
-    e.stopPropagation();
-    this.setState({
-      dragNodeHighlight: false,
-    });
-    this.props.root.onDragEnd(e, this);
+  onMouseEnter(e) {
+    e.preventDefault();
+    this.props.root.onMouseEnter(e, this);
   }
 
-  onExpand() {
-    const callbackPromise = this.props.root.onExpand(this);
-    if (callbackPromise && typeof callbackPromise === 'object') {
-      const setLoading = (dataLoading) => {
-        this.setState({ dataLoading });
-      };
-      setLoading(true);
-      callbackPromise.then(() => {
-        setLoading(false);
-      }, () => {
-        setLoading(false);
-      });
-    }
+  onMouseLeave(e) {
+    e.preventDefault();
+    this.props.root.onMouseLeave(e, this);
   }
 
   // keyboard event support
@@ -277,16 +268,17 @@ class TreeNode extends React.Component {
         if (props.selected || !props._dropTrigger && this.state.dragNodeHighlight) {
           domProps.className += ` ${prefixCls}-node-selected`;
         }
+
         domProps.onClick = (e) => {
           e.preventDefault();
           if (props.selectable) {
             this.onSelect();
           }
-          // not fire check event
-          // if (props.checkable) {
-          //   this.onCheck();
-          // }
         };
+
+        if (props.onDoubleClick) {
+          domProps.onDoubleClick = this.onDoubleClick;
+        }
         if (props.onRightClick) {
           domProps.onContextMenu = this.onContextMenu;
         }
