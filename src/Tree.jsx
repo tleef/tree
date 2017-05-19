@@ -74,6 +74,7 @@ class Tree extends React.Component {
   }
 
   onDragEnterGap(e, treeNode) {
+    console.log(treeNode.refs);
     const offsetTop = (0, getOffset)(treeNode.refs.selectHandle).top;
     const offsetHeight = treeNode.refs.selectHandle.offsetHeight;
     const pageY = e.pageY;
@@ -249,6 +250,13 @@ class Tree extends React.Component {
         });
       }
       this.props.onCheck(checkedKeys, newSt);
+    }
+  }
+
+  onClick(e, treeNode) {
+    const props = this.props;
+    if (props.onClick) {
+      props.onClick({ event: e, node: treeNode });
     }
   }
 
@@ -595,6 +603,7 @@ Tree.propTypes = {
   showLine: PropTypes.bool,
   showIcon: PropTypes.bool,
   selectable: PropTypes.bool,
+  toggleSelect: PropTypes.bool,
   multiple: PropTypes.bool,
   checkable: PropTypes.oneOfType([
     PropTypes.bool,
@@ -638,6 +647,7 @@ Tree.defaultProps = {
   showLine: false,
   showIcon: true,
   selectable: true,
+  toggleSelect: true,
   multiple: false,
   checkable: false,
   checkStrictly: false,

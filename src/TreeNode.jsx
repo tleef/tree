@@ -3,13 +3,7 @@ import PropTypes from 'prop-types';
 import assign from 'object-assign';
 import classNames from 'classnames';
 import Animate from 'rc-animate';
-import { browser } from './util';
 import toArray from 'rc-util/lib/Children/toArray';
-
-const browserUa = typeof window !== 'undefined' ? browser(window.navigator) : '';
-const ieOrEdge = /.*(IE|Edge).+/.test(browserUa);
-// const uaArray = browserUa.split(' ');
-// const gtIE8 = uaArray.length !== 2 || uaArray[0].indexOf('IE') === -1 || Number(uaArray[1]) > 8;
 
 const defaultTitle = '---';
 
@@ -29,12 +23,6 @@ class TreeNode extends React.Component {
     }
     this.props.root._treeNodeInstances.push(this);
   }
-  // shouldComponentUpdate(nextProps) {
-  //   if (!nextProps.expanded) {
-  //     return false;
-  //   }
-  //   return true;
-  // }
 
   onCheck = () => {
     this.props.root.onCheck(this);
@@ -55,50 +43,53 @@ class TreeNode extends React.Component {
     }
   };
 
-  onSelect() {
-    this.props.root.onSelect(this);
-  }
+  onClick = (e) => {
+    e.preventDefault();
+    const props = this.props;
+    props.root.onClick(e, this);
+    if (props.selectable) {
+      props.root.onSelect(this);
+    }
+  };
 
-  onContextMenu(e) {
+  onContextMenu = (e) => {
     e.preventDefault();
     this.props.root.onContextMenu(e, this);
-  }
+  };
 
-  onDoubleClick(e) {
+  onDoubleClick = (e) => {
     e.preventDefault();
     this.props.root.onDoubleClick(e, this);
-  }
+  };
 
-  onDragEnd(e) {
+  onDragEnd = (e) => {
     e.stopPropagation();
     this.setState({
       dragNodeHighlight: false,
     });
     this.props.root.onDragEnd(e, this);
-  }
+  };
 
-  onDragEnter(e) {
+  onDragEnter = (e) => {
     e.preventDefault();
     e.stopPropagation();
     this.props.root.onDragEnter(e, this);
-  }
+  };
 
-  onDragLeave(e) {
+  onDragLeave = (e) => {
     e.stopPropagation();
     this.props.root.onDragLeave(e, this);
-  }
+  };
 
-  onDragOver(e) {
+  onDragOver = (e) => {
     // todo disabled
     e.preventDefault();
     e.stopPropagation();
     this.props.root.onDragOver(e, this);
     return false;
-  }
+  };
 
-  onDragStart(e) {
-    // console.log('dragstart', this.props.eventKey, e);
-    // e.preventDefault();
+  onDragStart = (e) => {
     e.stopPropagation();
     this.setState({
       dragNodeHighlight: true,
@@ -111,31 +102,31 @@ class TreeNode extends React.Component {
     } catch (error) {
       // empty
     }
-  }
+  };
 
-  onDrop(e) {
+  onDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
     this.setState({
       dragNodeHighlight: false,
     });
     this.props.root.onDrop(e, this);
-  }
+  };
 
-  onMouseEnter(e) {
+  onMouseEnter = (e) => {
     e.preventDefault();
     this.props.root.onMouseEnter(e, this);
-  }
+  };
 
-  onMouseLeave(e) {
+  onMouseLeave = (e) => {
     e.preventDefault();
     this.props.root.onMouseLeave(e, this);
-  }
+  };
 
   // keyboard event support
-  onKeyDown(e) {
+  onKeyDown = (e) => {
     e.preventDefault();
-  }
+  };
 
   renderSwitcher(props, expandedState) {
     const prefixCls = props.prefixCls;
@@ -152,9 +143,9 @@ class TreeNode extends React.Component {
     }
     if (props.disabled) {
       switcherCls[`${prefixCls}-switcher-disabled`] = true;
-      return <span className={classNames(switcherCls)}></span>;
+      return <span className={classNames(switcherCls)} />;
     }
-    return <span className={classNames(switcherCls)} onClick={this.onExpand}></span>;
+    return <span className={classNames(switcherCls)} onClick={this.onExpand} />;
   }
 
   renderCheckbox(props) {
@@ -179,7 +170,9 @@ class TreeNode extends React.Component {
       <span ref="checkbox"
         className={classNames(checkboxCls) }
         onClick={this.onCheck}
-      >{customEle}</span>);
+      >
+        {customEle}
+      </span>);
   }
 
   renderChildren(props) {
@@ -238,17 +231,12 @@ class TreeNode extends React.Component {
     const content = props.title;
     let newChildren = this.renderChildren(props);
     if (!newChildren || newChildren === props.children) {
-      // content = newChildren;
       newChildren = null;
       if (!props.loadData || props.isLeaf) {
         canRenderSwitcher = false;
         iconState = 'docu';
       }
     }
-    // For performance, does't render children into dom when `!props.expanded` (move to Animate)
-    // if (!props.expanded) {
-    //   newChildren = null;
-    // }
 
     const iconEleCls = {
       [`${prefixCls}-iconEle`]: true,
@@ -258,7 +246,7 @@ class TreeNode extends React.Component {
 
     const selectHandle = () => {
       const icon = (props.showIcon || props.loadData && this.state.dataLoading) ?
-        <span className={classNames(iconEleCls)}></span> : null;
+        <span className={classNames(iconEleCls)} /> : null;
       const title = <span className={`${prefixCls}-title`}>{content}</span>;
       const wrap = `${prefixCls}-node-content-wrapper`;
       const domProps = {
@@ -269,12 +257,7 @@ class TreeNode extends React.Component {
           domProps.className += ` ${prefixCls}-node-selected`;
         }
 
-        domProps.onClick = (e) => {
-          e.preventDefault();
-          if (props.selectable) {
-            this.onSelect();
-          }
-        };
+        domProps.onClick = this.onClick;
 
         if (props.onDoubleClick) {
           domProps.onDoubleClick = this.onDoubleClick;
@@ -290,10 +273,6 @@ class TreeNode extends React.Component {
         }
         if (props.draggable) {
           domProps.className += ' draggable';
-          if (ieOrEdge) {
-            // ie bug!
-            domProps.href = '#';
-          }
           domProps.draggable = true;
           domProps['aria-grabbed'] = true;
           domProps.onDragStart = this.onDragStart;
@@ -340,7 +319,7 @@ class TreeNode extends React.Component {
       } else {
         cls[`${prefixCls}-noline_docu`] = true;
       }
-      return <span className={classNames(cls)}></span>;
+      return <span className={classNames(cls)} />;
     };
 
     return (
