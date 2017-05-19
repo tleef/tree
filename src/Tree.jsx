@@ -74,7 +74,6 @@ class Tree extends React.Component {
   }
 
   onDragEnterGap(e, treeNode) {
-    console.log(treeNode.refs);
     const offsetTop = (0, getOffset)(treeNode.refs.selectHandle).top;
     const offsetHeight = treeNode.refs.selectHandle.offsetHeight;
     const pageY = e.pageY;
