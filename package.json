@@ -1,6 +1,6 @@
 {
-  "name": "rc-tree",
-  "version": "1.5.0",
+  "name": "@tleef/rc-tree",
+  "version": "2.0.0",
   "description": "tree ui component for react",
   "keywords": [
     "react",
@@ -24,14 +24,14 @@
       "./src/index.js"
     ]
   },
-  "homepage": "http://github.com/react-component/tree",
-  "author": "hualei5280@gmail.com",
+  "homepage": "http://github.com/tleef/tree",
+  "author": "tleef",
   "repository": {
     "type": "git",
-    "url": "git@github.com:react-component/tree.git"
+    "url": "git@github.com:tleef/tree.git"
   },
   "bugs": {
-    "url": "http://github.com/react-component/tree/issues"
+    "url": "http://github.com/tleef/tree/issues"
   },
   "licenses": "MIT",
   "config": {
