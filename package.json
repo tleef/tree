@@ -26,6 +26,9 @@
   },
   "homepage": "http://github.com/tleef/tree",
   "author": "tleef",
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git@github.com:tleef/tree.git"
